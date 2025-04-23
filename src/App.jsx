@@ -1,12 +1,3 @@
-// Full Firebase Firestore restructuring for Fee Tracker App
-// New Firestore structure:
-// Collection: grounds
-// Document: <ground_id>
-// Subcollection: months
-// Document: <month_name>
-// Subcollection: players
-// Document: <player_id>
-
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import {
@@ -18,7 +9,6 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  deleteField
 } from 'firebase/firestore';
 import logo from './assets/nufclogo.png';
 import toast, { Toaster } from 'react-hot-toast';
@@ -112,78 +102,113 @@ export default function FeeTrackerApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-black text-white font-sans">
       <Toaster />
       <main className="max-w-7xl mx-auto p-6">
         <header className="flex items-center space-x-4 mb-8">
-          <img src={logo} alt="Logo" className="w-16 h-16" />
-          <h1 className="text-3xl font-bold">Fee Tracker</h1>
+          <img src={logo} alt="Logo" className="w-16 h-16 rounded-full border-2 border-white" />
+          <div>
+            <h1 className="text-4xl font-bold">NORTHERN UNITED FC</h1>
+            <p className="text-lg italic text-gray-300">DREAM • BELIEVE • ACHIEVE</p>
+          </div>
         </header>
 
         {/* Ground Selector */}
-        <div className="mb-4">
+        <div className="mb-4 flex flex-wrap gap-2">
           {grounds.map(g => (
             <button
               key={g.id}
-              className={`px-4 py-2 m-1 ${g.id === currentGround ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                g.id === currentGround ? 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white' : 'bg-gray-300 text-black'
+              }`}
               onClick={() => setCurrentGround(g.id)}>
               {g.name}
             </button>
           ))}
         </div>
-        <input value={newGround} onChange={e => setNewGround(e.target.value)} placeholder="New Ground" className="border p-2" />
-        <button onClick={addGround} className="bg-blue-500 text-white px-4 py-2 rounded ml-2">Add Ground</button>
+        <div className="flex items-center mb-6">
+          <input
+            value={newGround}
+            onChange={e => setNewGround(e.target.value)}
+            placeholder="New Ground"
+            className="border p-2 rounded-l-full text-white bg-black placeholder-gray-300"
+          />
+          <button
+            onClick={addGround}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-r-full">
+            Add Ground
+          </button>
+        </div>
 
         {/* Month Selector */}
-        <div className="mt-6 mb-4">
+        <div className="mb-4 flex flex-wrap gap-2">
           {months.map(m => (
             <button
               key={m}
-              className={`px-4 py-2 m-1 ${m === currentMonth ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
+              className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                m === currentMonth ? 'bg-gradient-to-r from-green-400 to-green-700 text-white' : 'bg-gray-300 text-black'
+              }`}
               onClick={() => setCurrentMonth(m)}>
               {m}
             </button>
           ))}
         </div>
-        <input value={newMonth} onChange={e => setNewMonth(e.target.value)} placeholder="New Month" className="border p-2" />
-        <button onClick={addMonth} className="bg-green-500 text-white px-4 py-2 rounded ml-2">Add Month</button>
+        <div className="flex items-center mb-8">
+          <input
+            value={newMonth}
+            onChange={e => setNewMonth(e.target.value)}
+            placeholder="New Month"
+            className="border p-2 rounded-l-full text-white bg-black placeholder-gray-300"
+          />
+          <button
+            onClick={addMonth}
+            className="bg-gradient-to-r from-green-500 to-green-700 text-white px-4 py-2 rounded-r-full">
+            Add Month
+          </button>
+        </div>
 
         {/* Players Table */}
         <div className="mt-6">
-          <button onClick={addPlayer} className="bg-purple-600 text-white px-4 py-2 rounded mb-4">Add Player</button>
-          <table className="min-w-full bg-white border">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Contact</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Due Fees</th>
-                <th className="px-4 py-2">Due Date</th>
-                <th className="px-4 py-2">Remarks</th>
-                <th className="px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {players.map((player) => (
-                <tr key={player.id} className="border-t">
-                  <td><input className="w-full" value={player.name} onChange={e => updatePlayer(player.id, 'name', e.target.value)} /></td>
-                  <td><input className="w-full" value={player.contact} onChange={e => updatePlayer(player.id, 'contact', e.target.value)} /></td>
-                  <td>
-                    <select className="w-full" value={player.status} onChange={e => updatePlayer(player.id, 'status', e.target.value)}>
-                      <option>Paid</option>
-                      <option>Not Paid</option>
-                    </select>
-                  </td>
-                  <td><input className="w-full" type="number" value={player.dueFees} onChange={e => updatePlayer(player.id, 'dueFees', +e.target.value)} /></td>
-                  <td><input className="w-full" type="date" value={player.dueDate} onChange={e => updatePlayer(player.id, 'dueDate', e.target.value)} /></td>
-                  <td><input className="w-full" value={player.remarks} onChange={e => updatePlayer(player.id, 'remarks', e.target.value)} /></td>
-                  <td>
-                    <button className="px-2 py-1 bg-red-500 text-white rounded" onClick={() => deletePlayer(player.id)}>Delete</button>
-                  </td>
+          <button
+            onClick={addPlayer}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full mb-4">
+            Add Player
+          </button>
+          <div className="overflow-x-auto rounded-2xl shadow-xl">
+            <table className="min-w-full bg-white text-black rounded-xl overflow-hidden">
+              <thead>
+                <tr className="bg-gradient-to-r from-gray-300 to-gray-200 font-semibold text-black text-lg">
+                  <th className="px-6 py-3 text-left">Name</th>
+                  <th className="px-6 py-3 text-left">Contact</th>
+                  <th className="px-6 py-3 text-left">Status</th>
+                  <th className="px-6 py-3 text-left">Due Fees</th>
+                  <th className="px-6 py-3 text-left">Due Date</th>
+                  <th className="px-6 py-3 text-left">Remarks</th>
+                  <th className="px-6 py-3 text-left">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {players.map((player, idx) => (
+                  <tr key={player.id} className={`hover:bg-gray-100 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                    <td className="px-6 py-2"><input className="w-full p-1 rounded-md" value={player.name} onChange={e => updatePlayer(player.id, 'name', e.target.value)} /></td>
+                    <td className="px-6 py-2"><input className="w-full p-1 rounded-md" value={player.contact} onChange={e => updatePlayer(player.id, 'contact', e.target.value)} /></td>
+                    <td className="px-6 py-2">
+                      <select className="w-full p-1 rounded-md" value={player.status} onChange={e => updatePlayer(player.id, 'status', e.target.value)}>
+                        <option>Paid</option>
+                        <option>Not Paid</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-2"><input className="w-full p-1 rounded-md" type="number" value={player.dueFees} onChange={e => updatePlayer(player.id, 'dueFees', +e.target.value)} /></td>
+                    <td className="px-6 py-2"><input className="w-full p-1 rounded-md" type="date" value={player.dueDate} onChange={e => updatePlayer(player.id, 'dueDate', e.target.value)} /></td>
+                    <td className="px-6 py-2"><input className="w-full p-1 rounded-md" value={player.remarks} onChange={e => updatePlayer(player.id, 'remarks', e.target.value)} /></td>
+                    <td className="px-6 py-2">
+                      <button className="px-3 py-1 bg-red-600 text-white rounded-full hover:bg-red-700" onClick={() => deletePlayer(player.id)}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </div>
