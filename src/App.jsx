@@ -101,6 +101,13 @@ export default function FeeTrackerApp() {
     toast.success('Player deleted');
   };
 
+  const remindPlayer = (contact, name, dueFees) => {
+    const phone = contact.replace(/[^\d]/g, '');
+    const message = `Hi ${name}, this is a reminder to kindly pay your due fee of Rs.${dueFees} to Northern United FC.`;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-black text-white font-sans">
       <Toaster />
@@ -201,8 +208,9 @@ export default function FeeTrackerApp() {
                     <td className="px-6 py-2"><input className="w-full p-1 rounded-md" type="number" value={player.dueFees} onChange={e => updatePlayer(player.id, 'dueFees', +e.target.value)} /></td>
                     <td className="px-6 py-2"><input className="w-full p-1 rounded-md" type="date" value={player.dueDate} onChange={e => updatePlayer(player.id, 'dueDate', e.target.value)} /></td>
                     <td className="px-6 py-2"><input className="w-full p-1 rounded-md" value={player.remarks} onChange={e => updatePlayer(player.id, 'remarks', e.target.value)} /></td>
-                    <td className="px-6 py-2">
+                    <td className="px-6 py-2 space-x-2">
                       <button className="px-3 py-1 bg-red-600 text-white rounded-full hover:bg-red-700" onClick={() => deletePlayer(player.id)}>Delete</button>
+                      <button className="px-3 py-1 bg-green-600 text-white rounded-full hover:bg-green-700" onClick={() => remindPlayer(player.contact, player.name, player.dueFees)}>Remind</button>
                     </td>
                   </tr>
                 ))}
